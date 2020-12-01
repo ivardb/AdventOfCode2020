@@ -16,3 +16,16 @@ pub fn run(day: usize) {
         }
     }
 }
+
+pub fn run_with_input(day : usize, input : &str) {
+    match day {
+        1 => {
+            days::day1::part1::expense_rapport_str(input);
+            days::day1::part2::expense_rapport_str(input);
+        }
+        _ => {
+            println!("Day not valid");
+            return
+        }
+    }
+}
