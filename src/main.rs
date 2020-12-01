@@ -2,6 +2,7 @@ use std::io;
 use aoc2020;
 
 fn main() {
+    aoc2020::run(1);
     loop {
         println!("Enter the day number: ");
         let mut day = String::new();
