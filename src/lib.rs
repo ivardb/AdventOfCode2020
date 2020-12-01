@@ -56,5 +56,5 @@ pub fn benchmark(day : usize) {
 fn benchmark_function<T, E>(input : &str, f : &dyn Fn(&str) -> Result<T, E>) -> f64 {
     let start = Instant::now();
     black_box(f(input));
-    start.elapsed().as_micros() as f64/1000000f64
+    start.elapsed().as_micros() as f64/i32::pow(10, 6) as f64
 }
