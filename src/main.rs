@@ -4,13 +4,26 @@ use aoc2020;
 fn main() {
     aoc2020::run(2);
     loop {
-        println!("Enter the day number: ");
-        let mut day = String::new();
-        io::stdin().read_line(&mut day).expect("Failed to read input");
-        let day : usize = match day.trim().parse() {
-            Ok(n) => n,
-            Err(_) => break
-        };
-        aoc2020::run(day);
+        println!("Enter input: ");
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).expect("Failed to read input");
+        let input : Vec<&str> = input.split_ascii_whitespace().collect();
+        if input.len() == 1 {
+            if let Ok(day) = input[0].trim().parse() {
+                aoc2020::run(day)
+            } else {
+                break
+            }
+        } else if input.len() == 2 {
+            if input[0].contains("benchmark") {
+                if let Ok(day) = input[1].trim().parse() {
+                    aoc2020::benchmark(day);
+                } else {
+                    break
+                }
+            }
+        } else {
+            break
+        }
     }
 }
