@@ -22,3 +22,7 @@ criterion = "0.3.3"
 [profile.release]
 opt-level = 3
 lto = true
+
+[[bench]]
+name = "aoc2020_benchmark"
+harness = false

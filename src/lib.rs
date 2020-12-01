@@ -58,3 +58,27 @@ fn benchmark_function<T, E>(input : &str, f : &dyn Fn(&str) -> Result<T, E>) -> 
     black_box(f(input));
     start.elapsed().as_micros() as f64/i32::pow(10, 6) as f64
 }
+
+pub fn criterion_bench_part1(day : usize, input : &str) {
+    match day {
+        1 => {
+            day1::part1::expense_rapport_str(input).unwrap();
+        }
+        _ => {
+            println!("Day not valid");
+            return
+        }
+    }
+}
+
+pub fn criterion_bench_part2(day : usize, input : &str) {
+    match day {
+        1 => {
+            day1::part2::expense_rapport_str(input).unwrap();
+        }
+        _ => {
+            println!("Day not valid");
+            return
+        }
+    }
+}
