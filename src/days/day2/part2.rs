@@ -1,9 +1,9 @@
-use crate::days::day2::Row;
+use crate::days::day2::{Row, default_input};
 use std::str::FromStr;
 
 pub fn run() {
-    let input = include_str!("input");
-    println!("{}", password_validator_str(input).unwrap());
+    let input = default_input();
+    println!("{}", password_validator_str(&*input).unwrap());
 }
 
 pub fn password_validator_str(input : &str) -> Result<usize, ()> {
