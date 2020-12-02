@@ -14,8 +14,8 @@ pub fn run() {
 }
 
 struct Row {
-    min: i32,
-    max: i32,
+    min: usize,
+    max: usize,
     letter: char,
     password: String,
 }
@@ -24,25 +24,18 @@ impl FromStr for Row {
     type Err = ParseIntError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let split : Vec<&str> = s.split_ascii_whitespace().collect();
-        let numsplit : Vec<&str> = split[0].split("-").collect();
-        let min : i32 = numsplit[0].trim().parse()?;
-        let max : i32 = numsplit[1].trim().parse()?;
-        let chars : Vec<char> = split[1].trim().chars().collect();
-        let letter = chars[0];
-        let password = String::from(split[2].trim());
+        let split : Vec<&str> = s.trim().split(|c| { c == '-' || c == ' '}).collect();
+        let min : usize = split[0].parse()?;
+        let max : usize = split[1].parse()?;
+        let letter : char = split[2].as_bytes()[0] as char;
+        let password = String::from(split[3].trim());
         Ok(Row {min, max, letter, password})
     }
 }
 
 impl Row {
     fn is_valid(&self) -> bool {
-        let mut letter_count = 0;
-        for c in self.password.chars() {
-            if c == self.letter {
-                letter_count += 1;
-            }
-        }
+        let mut letter_count = self.password.matches(self.letter).count();
         letter_count <= self.max && letter_count >= self.min
     }
 
