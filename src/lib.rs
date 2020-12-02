@@ -5,14 +5,9 @@ use criterion::black_box;
 
 pub fn run(day: usize) {
     match day {
-        1 => {
-            day1::part1::run();
-            day1::part2::run()
-        }
-        2 => {
-            day2::part1::run();
-            day2::part2::run();
-        }
+        1 => day1::run(),
+        2 => day2::run(),
+        3 => day3::run(),
         _ => {
             println!("Day not valid");
             return
@@ -61,6 +56,8 @@ pub fn benchmark(day : usize) {
     println!("Part 2 took: {} seconds", t2);
 }
 
+
+#[allow(unused_must_use)]
 fn benchmark_function<T, E>(input : &str, f : &dyn Fn(&str) -> Result<T, E>) -> f64 {
     let start = Instant::now();
     black_box(f(input));

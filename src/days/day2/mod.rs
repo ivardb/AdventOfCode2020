@@ -8,6 +8,11 @@ pub fn default_input() -> String {
     String::from(include_str!("input"))
 }
 
+pub fn run() {
+    part1::run();
+    part2::run();
+}
+
 struct Row {
     min: i32,
     max: i32,
