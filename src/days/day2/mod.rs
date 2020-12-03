@@ -35,7 +35,7 @@ impl FromStr for Row {
 
 impl Row {
     fn is_valid(&self) -> bool {
-        let mut letter_count = self.password.matches(self.letter).count();
+        let letter_count = self.password.matches(self.letter).count();
         letter_count <= self.max && letter_count >= self.min
     }
 

@@ -18,6 +18,7 @@ rand = "0.7.3"
 direction = "0.17.10"
 maplit = "1.0.2"
 criterion = "0.3.3"
+grid = "0.2.3"
 
 [profile.release]
 opt-level = 3

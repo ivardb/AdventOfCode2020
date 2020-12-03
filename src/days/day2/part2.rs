@@ -9,3 +9,13 @@ pub fn run() {
 pub fn password_validator_str(input : &str) -> Result<usize, ()> {
     Ok(input.lines().map(|l| {Row::from_str(l).unwrap()}).filter(Row::is_valid2).count())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part1_answer() {
+        assert_eq!(249, password_validator_str(&*default_input()).unwrap())
+    }
+}

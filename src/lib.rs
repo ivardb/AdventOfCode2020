@@ -23,7 +23,11 @@ pub fn run_with_input(day : usize, input : &str) {
         }
         2 => {
             println!("Part 1: {}", day2::part1::password_validator_str(input).unwrap());
-            println!("Part 1: {}", day2::part2::password_validator_str(input).unwrap());
+            println!("Part 2: {}", day2::part2::password_validator_str(input).unwrap());
+        }
+        3 => {
+            println!("Part 1: {}", day3::part1::route_str(input).unwrap());
+            println!("Part 2: {}", day3::part2::route_str(input).unwrap());
         }
         _ => {
             println!("Day not valid");
@@ -46,6 +50,11 @@ pub fn benchmark(day : usize) {
             let input = day2::default_input();
             t1 = benchmark_function(&*input, &day2::part1::password_validator_str);
             t2 = benchmark_function(&*input, &day2::part2::password_validator_str);
+        }
+        3 => {
+            let input = day3::default_input();
+            t1 = benchmark_function(&*input, &day3::part1::route_str);
+            t2 = benchmark_function(&*input, &day3::part2::route_str);
         }
         _ => {
             println!("Day not valid");
@@ -72,6 +81,9 @@ pub fn criterion_bench_part1(day : usize, input : &str) {
         2 => {
             day2::part1::password_validator_str(input).unwrap();
         }
+        3 => {
+            day3::part1::route_str(input).unwrap();
+        }
         _ => {
             println!("Day not valid");
             return
@@ -86,6 +98,9 @@ pub fn criterion_bench_part2(day : usize, input : &str) {
         }
         2 => {
             day2::part2::password_validator_str(input).unwrap();
+        }
+        3 => {
+            day3::part2::route_str(input).unwrap();
         }
         _ => {
             println!("Day not valid");
