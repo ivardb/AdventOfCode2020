@@ -4,7 +4,7 @@ use grid::Grid;
 
 pub fn run() {
     let input = default_input();
-    println!("{}", route_str(&*input).unwrap());
+    println!("{}", route_str(input).unwrap());
 }
 
 pub fn route_str(input : &str) -> Result<i32, ()>{

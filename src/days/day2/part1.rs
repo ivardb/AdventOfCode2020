@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 pub fn run() {
     let input = default_input();
-    println!("{}", password_validator_str(&*input).unwrap());
+    println!("{}", password_validator_str(input).unwrap());
 }
 
 pub fn password_validator_str(input : &str) -> Result<usize, ()> {

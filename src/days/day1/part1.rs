@@ -2,7 +2,7 @@ use crate::days::day1::default_input;
 
 pub fn run() {
     let input = default_input();
-    println!("Part 1: {}", expense_rapport_str(&*input).unwrap())
+    println!("Part 1: {}", expense_rapport_str(input).unwrap())
 }
 
 pub fn expense_rapport_str(input : &str) -> Result<i32, ()> {
