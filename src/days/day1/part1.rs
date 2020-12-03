@@ -23,6 +23,6 @@ mod tests {
 
     #[test]
     fn part1_answer() {
-        assert_eq!(918339, expense_rapport_str(&*default_input()).unwrap())
+        assert_eq!(918339, expense_rapport_str(default_input()).unwrap())
     }
 }

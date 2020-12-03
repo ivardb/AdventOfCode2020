@@ -16,6 +16,6 @@ mod tests {
 
     #[test]
     fn part1_answer() {
-        assert_eq!(249, password_validator_str(&*default_input()).unwrap())
+        assert_eq!(249, password_validator_str(default_input()).unwrap())
     }
 }

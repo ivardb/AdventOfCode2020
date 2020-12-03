@@ -42,6 +42,6 @@ mod tests {
 
     #[test]
     fn part1_answer() {
-        assert_eq!(3517401300, route_str(&*default_input()).unwrap())
+        assert_eq!(3517401300, route_str(default_input()).unwrap())
     }
 }
