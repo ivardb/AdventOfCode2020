@@ -18,6 +18,7 @@ pub fn run(day: usize) {
 
 pub fn benchmark(day : usize) {
     println!("Benchmarking day: {}", day);
+    let mut tp : f64 = 0f64;
     let t1 : f64;
     let t2 : f64;
     match day {
@@ -40,14 +41,16 @@ pub fn benchmark(day : usize) {
             let input = day4::default_input();
             t1 = benchmark_function(input, &day4::part1::password_system_str);
             t2 = benchmark_function(input, &day4::part2::password_system_str);
+            tp = benchmark_function(input, &day4::parse_input);
         }
         _ => {
             println!("Day not valid");
             return
         }
     }
-    println!("Part 1 took: {} seconds", t1);
-    println!("Part 2 took: {} seconds", t2);
+    println!("Parsing the input takes: {} ms", tp);
+    println!("Part 1 took: {} seconds or without parsing: {} ms", t1, t1 - tp);
+    println!("Part 2 took: {} seconds or without parsing: {} ms", t2, t2 - tp);
 }
 
 
@@ -55,7 +58,7 @@ pub fn benchmark(day : usize) {
 fn benchmark_function<T, E>(input : &str, f : &dyn Fn(&str) -> Result<T, E>) -> f64 {
     let start = Instant::now();
     black_box(f(input));
-    start.elapsed().as_micros() as f64/i32::pow(10, 6) as f64
+    start.elapsed().as_micros() as f64/i32::pow(10, 3) as f64
 }
 
 pub fn criterion_bench_part1(day : usize, input : &str) {

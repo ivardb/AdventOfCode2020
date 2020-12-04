@@ -6,7 +6,7 @@ pub fn run() {
 }
 
 pub fn password_system_str(input : &str) -> Result<usize, ()> {
-    password_system(parse_input(input))
+    password_system(parse_input(input).unwrap())
 }
 
 pub fn password_system(passports : Vec<HashMap<String, String>>) -> Result<usize, ()> {
