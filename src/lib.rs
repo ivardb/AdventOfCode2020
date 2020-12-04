@@ -16,35 +16,35 @@ pub fn run(day: usize) {
     }
 }
 
-pub fn benchmark(day : usize) {
-    println!("Benchmarking day: {}", day);
+pub fn benchmark(day : usize, iter : usize) {
+    println!("Benchmarking day: {} with {} iterations", day, iter);
     let tp : f64;
     let t1 : f64;
     let t2 : f64;
     match day {
         1 => {
             let input = day1::default_input();
-            t1 = benchmark_function(input, &day1::part1::expense_rapport_str);
-            t2 = benchmark_function(input, &day1::part2::expense_rapport_str);
-            tp = benchmark_function(input, &day1::parse_input)
+            t1 = benchmark_function(input, &day1::part1::expense_rapport_str, iter);
+            t2 = benchmark_function(input, &day1::part2::expense_rapport_str, iter);
+            tp = benchmark_function(input, &day1::parse_input, iter)
         }
         2 => {
             let input = day2::default_input();
-            t1 = benchmark_function(input, &day2::part1::password_validator_str);
-            t2 = benchmark_function(input, &day2::part2::password_validator_str);
-            tp = benchmark_function(input, &day2::parse_input)
+            t1 = benchmark_function(input, &day2::part1::password_validator_str, iter);
+            t2 = benchmark_function(input, &day2::part2::password_validator_str, iter);
+            tp = benchmark_function(input, &day2::parse_input, iter)
         }
         3 => {
             let input = day3::default_input();
-            t1 = benchmark_function(input, &day3::part1::route_str);
-            t2 = benchmark_function(input, &day3::part2::route_str);
-            tp = benchmark_function(input, &day3::parse_input)
+            t1 = benchmark_function(input, &day3::part1::route_str, iter);
+            t2 = benchmark_function(input, &day3::part2::route_str, iter);
+            tp = benchmark_function(input, &day3::parse_input, iter)
         }
         4 => {
             let input = day4::default_input();
-            t1 = benchmark_function(input, &day4::part1::password_system_str);
-            t2 = benchmark_function(input, &day4::part2::password_system_str);
-            tp = benchmark_function(input, &day4::parse_input);
+            t1 = benchmark_function(input, &day4::part1::password_system_str, iter);
+            t2 = benchmark_function(input, &day4::part2::password_system_str, iter);
+            tp = benchmark_function(input, &day4::parse_input, iter);
         }
         _ => {
             println!("Day not valid");
@@ -58,9 +58,9 @@ pub fn benchmark(day : usize) {
 
 
 #[allow(unused_must_use)]
-fn benchmark_function<T>(input : &str, f : &dyn Fn(&str) -> T) -> f64 {
+fn benchmark_function<T>(input : &str, f : &dyn Fn(&str) -> T, iter : usize) -> f64 {
     let mut scores = Vec::new();
-    for _ in 0..500 {
+    for _ in 0..iter {
         let start = Instant::now();
         black_box(f(input));
         scores.push(start.elapsed().as_micros() as f64 / i32::pow(10, 3) as f64);

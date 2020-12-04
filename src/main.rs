@@ -14,10 +14,18 @@ fn main() {
             } else {
                 break
             }
-        } else if input.len() == 2 {
+        } else if input.len() > 1 {
             if input[0].contains("benchmark") {
                 if let Ok(day) = input[1].trim().parse() {
-                    aoc2020::benchmark(day);
+                    if input.len() == 3 {
+                        if let Ok(iter) = input[2].trim().parse() {
+                            aoc2020::benchmark(day, iter)
+                        } else {
+                            aoc2020::benchmark(day, 500)
+                        }
+                    } else {
+                        aoc2020::benchmark(day, 500);
+                    }
                 } else {
                     break
                 }
