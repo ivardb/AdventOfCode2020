@@ -19,3 +19,13 @@ fn valid_passport(passport : &HashMap<String, String>) -> bool {
     }
     passport.len() == 8
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part1_answer() {
+        assert_eq!(210, password_system_str(default_input()).unwrap())
+    }
+}
