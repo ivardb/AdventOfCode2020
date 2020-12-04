@@ -1,22 +1,15 @@
-use crate::days::day4::default_input;
+use crate::days::day4::{default_input, parse_input};
 use std::collections::HashMap;
 
 pub fn run() {
-    let input = default_input();
-    println!("{}", password_system_str(input).unwrap());
+    println!("{}", password_system_str(default_input()).unwrap());
 }
 
 pub fn password_system_str(input : &str) -> Result<usize, ()> {
-    let passports : Vec<_> = input.split("\r\n\r")
-        .map(|p| {
-            let map : HashMap<String, String> = p.split(&['\r', ' '][..])
-                .map(|l| {
-                    let split : Vec<_> = l.split(":").collect();
-                    (String::from(split[0].trim()), String::from(split[1]))})
-                .collect();
-            map
-        })
-        .collect();
+    password_system(parse_input(input))
+}
+
+pub fn password_system(passports : Vec<HashMap<String, String>>) -> Result<usize, ()> {
     Ok(passports.iter().filter(|p| {valid_passport(p)}).count())
 }
 
