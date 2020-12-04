@@ -1,5 +1,4 @@
-use crate::days::day2::{Row, default_input};
-use std::str::FromStr;
+use crate::days::day2::{Row, default_input, parse_input};
 
 pub fn run() {
     let input = default_input();
@@ -7,7 +6,11 @@ pub fn run() {
 }
 
 pub fn password_validator_str(input : &str) -> Result<usize, ()> {
-    Ok(input.lines().map(|l| {Row::from_str(l).unwrap()}).filter(Row::is_valid2).count())
+    password_validator(parse_input(input))
+}
+
+pub fn password_validator(rows: Vec<Row>) -> Result<usize, ()> {
+    Ok(rows.iter().filter(|r| {r.is_valid2()}).count())
 }
 
 #[cfg(test)]

@@ -8,7 +8,7 @@ pub fn run() {
 }
 
 pub fn route_str(input : &str) -> Result<i32, ()> {
-    route(parse_input(input).unwrap())
+    route(parse_input(input))
 }
 
 pub fn route(grid : Grid<char>) -> Result<i32, ()>{

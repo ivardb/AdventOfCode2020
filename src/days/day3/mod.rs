@@ -12,12 +12,12 @@ pub fn run() {
     part2::run();
 }
 
-pub fn parse_input(input : &str) -> Result<Grid<char>, ()> {
+pub fn parse_input(input : &str) -> Grid<char> {
     let init :Vec<_> = input.lines().next().unwrap().chars().collect();
     let len = &init.len();
     let mut grid = Grid::from_vec(init, *len);
     for l in input.lines().skip(1) {
         grid.push_row(l.chars().collect())
     }
-    Ok(grid)
+    grid
 }

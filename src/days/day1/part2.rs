@@ -1,4 +1,4 @@
-use crate::days::day1::default_input;
+use crate::days::day1::{default_input, parse_input};
 
 pub fn run() {
     let input = default_input();
@@ -6,15 +6,11 @@ pub fn run() {
 }
 
 pub fn expense_rapport_str(input : &str) -> Result<i64, ()> {
-    let mut nums: Vec<i64> = Vec::new();
-    let mut smallest = 2020;
-    for i in input.lines() {
-        let n: i64 = i.trim().parse().unwrap();
-        if n < smallest {
-            smallest = n;
-        }
-        nums.push(n);
-    }
+    expense_rapport(parse_input(input))
+}
+
+pub fn expense_rapport(nums : Vec<i64>) -> Result<i64, ()> {
+    let smallest = nums.iter().min().unwrap();
     for num in &nums {
         for num2 in &nums {
             let sum = num + num2;

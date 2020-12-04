@@ -1,12 +1,15 @@
-use crate::days::day1::default_input;
+use crate::days::day1::{default_input, parse_input};
 
 pub fn run() {
     let input = default_input();
     println!("Part 1: {}", expense_rapport_str(input).unwrap())
 }
 
-pub fn expense_rapport_str(input : &str) -> Result<i32, ()> {
-    let nums: Vec<i32> = input.lines().map(str::parse).collect::<Result<Vec<i32>, _>>().unwrap();
+pub fn expense_rapport_str(input : &str) -> Result<i64, ()> {
+    expense_rapport(parse_input(input))
+}
+
+pub fn expense_rapport(nums : Vec<i64>) -> Result<i64, ()> {
     for num in &nums {
         for num2 in &nums {
             if num + num2 == 2020 {

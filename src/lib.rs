@@ -18,7 +18,7 @@ pub fn run(day: usize) {
 
 pub fn benchmark(day : usize) {
     println!("Benchmarking day: {}", day);
-    let mut tp : f64 = 0f64;
+    let tp : f64;
     let t1 : f64;
     let t2 : f64;
     match day {
@@ -26,11 +26,13 @@ pub fn benchmark(day : usize) {
             let input = day1::default_input();
             t1 = benchmark_function(input, &day1::part1::expense_rapport_str);
             t2 = benchmark_function(input, &day1::part2::expense_rapport_str);
+            tp = benchmark_function(input, &day1::parse_input)
         }
         2 => {
             let input = day2::default_input();
             t1 = benchmark_function(input, &day2::part1::password_validator_str);
             t2 = benchmark_function(input, &day2::part2::password_validator_str);
+            tp = benchmark_function(input, &day2::parse_input)
         }
         3 => {
             let input = day3::default_input();
@@ -56,7 +58,7 @@ pub fn benchmark(day : usize) {
 
 
 #[allow(unused_must_use)]
-fn benchmark_function<T, E>(input : &str, f : &dyn Fn(&str) -> Result<T, E>) -> f64 {
+fn benchmark_function<T>(input : &str, f : &dyn Fn(&str) -> T) -> f64 {
     let mut scores = Vec::new();
     for _ in 0..500 {
         let start = Instant::now();

@@ -13,7 +13,11 @@ pub fn run() {
     part2::run();
 }
 
-struct Row {
+pub fn parse_input(input : &str) -> Vec<Row> {
+    input.lines().map(|l| {Row::from_str(l).unwrap()}).collect()
+}
+
+pub struct Row {
     min: usize,
     max: usize,
     letter: char,
