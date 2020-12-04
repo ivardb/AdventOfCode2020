@@ -1,4 +1,4 @@
-use crate::days::day3::default_input;
+use crate::days::day3::{default_input, parse_input};
 use grid::Grid;
 
 pub fn run() {
@@ -6,13 +6,11 @@ pub fn run() {
     println!("{}", route_str(input).unwrap());
 }
 
-pub fn route_str(input : &str) -> Result<i64, ()>{
-    let init :Vec<_> = input.lines().next().unwrap().chars().collect();
-    let len = &init.len();
-    let mut grid = Grid::from_vec(init, *len);
-    for l in input.lines().skip(1) {
-        grid.push_row(l.chars().collect())
-    }
+pub fn route_str(input : &str) -> Result<i64, ()> {
+    route(parse_input(input).unwrap())
+}
+
+pub fn route(grid : Grid<char>) -> Result<i64, ()>{
     Ok(check_route(&grid, 1, 1) *
         check_route(&grid, 3, 1) *
         check_route(&grid, 5, 1) *

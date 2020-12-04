@@ -36,6 +36,7 @@ pub fn benchmark(day : usize) {
             let input = day3::default_input();
             t1 = benchmark_function(input, &day3::part1::route_str);
             t2 = benchmark_function(input, &day3::part2::route_str);
+            tp = benchmark_function(input, &day3::parse_input)
         }
         4 => {
             let input = day4::default_input();
@@ -49,16 +50,20 @@ pub fn benchmark(day : usize) {
         }
     }
     println!("Parsing the input takes: {} ms", tp);
-    println!("Part 1 took: {} seconds or without parsing: {} ms", t1, t1 - tp);
-    println!("Part 2 took: {} seconds or without parsing: {} ms", t2, t2 - tp);
+    println!("Part 1 took: {} ms or without parsing: {} ms", t1, t1 - tp);
+    println!("Part 2 took: {} ms or without parsing: {} ms", t2, t2 - tp);
 }
 
 
 #[allow(unused_must_use)]
 fn benchmark_function<T, E>(input : &str, f : &dyn Fn(&str) -> Result<T, E>) -> f64 {
-    let start = Instant::now();
-    black_box(f(input));
-    start.elapsed().as_micros() as f64/i32::pow(10, 3) as f64
+    let mut scores = Vec::new();
+    for _ in 0..500 {
+        let start = Instant::now();
+        black_box(f(input));
+        scores.push(start.elapsed().as_micros() as f64 / i32::pow(10, 3) as f64);
+    }
+    scores.iter().sum::<f64>() / scores.len() as f64
 }
 
 pub fn criterion_bench_part1(day : usize, input : &str) {
