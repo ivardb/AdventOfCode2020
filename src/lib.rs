@@ -19,7 +19,7 @@ pub fn run(day: usize) {
 
 pub fn benchmark(day : usize, iter : usize) {
     println!("Benchmarking day: {} with {} iterations", day, iter);
-    let tp : f64;
+    let mut tp : f64 = 0f64;
     let t1 : f64;
     let t2 : f64;
     match day {
@@ -46,6 +46,11 @@ pub fn benchmark(day : usize, iter : usize) {
             t1 = benchmark_function(input, &day4::part1::password_system_str, iter);
             t2 = benchmark_function(input, &day4::part2::password_system_str, iter);
             tp = benchmark_function(input, &day4::parse_input, iter);
+        }
+        5 => {
+            let input = day5::default_input();
+            t1 = benchmark_function(input, &day5::part1::boarding_pass_str, iter);
+            t2 = benchmark_function(input, &day5::part2::boarding_pass_str, iter);
         }
         _ => {
             println!("Day not valid");
@@ -83,6 +88,9 @@ pub fn criterion_bench_part1(day : usize, input : &str) {
         4 => {
             day4::part1::password_system_str(input).unwrap();
         }
+        5 => {
+            day5::part1::boarding_pass_str(input).unwrap();
+        }
         _ => {
             println!("Day not valid");
             return
@@ -103,6 +111,9 @@ pub fn criterion_bench_part2(day : usize, input : &str) {
         }
         4 => {
             day4::part2::password_system_str(input).unwrap();
+        }
+        5 => {
+            day5::part2::boarding_pass_str(input).unwrap();
         }
         _ => {
             println!("Day not valid");
