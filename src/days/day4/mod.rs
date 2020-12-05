@@ -13,9 +13,9 @@ pub fn run() {
 }
 
 pub fn parse_input(input : &str) -> Vec<HashMap<String, String>> {
-    input.split("\r\n\r")
+    input.split("\n\n")
         .map(|p| {
-            let map : HashMap<String, String> = p.split(&['\r', ' '][..])
+            let map : HashMap<String, String> = p.split(&['\n', ' '][..])
                 .map(|l| {
                     let split : Vec<_> = l.split(":").collect();
                     (String::from(split[0].trim()), String::from(split[1]))})
