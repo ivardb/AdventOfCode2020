@@ -5,3 +5,7 @@ pub fn run() {
     part1::run();
     part2::run();
 }
+
+pub fn default_input() -> &'static str {
+    include_str!("input")
+}
