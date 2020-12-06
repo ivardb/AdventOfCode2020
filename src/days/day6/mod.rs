@@ -9,3 +9,7 @@ pub fn run() {
 pub fn default_input() -> &'static str {
     include_str!("input")
 }
+
+pub fn parse_input(input : &str) -> Vec<Vec<&str>> {
+    input.split("\n\n").map(|g| {g.split("\n").collect::<Vec<_>>()}).collect()
+}
