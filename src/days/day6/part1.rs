@@ -1,4 +1,3 @@
-use std::collections::{HashSet, BTreeSet};
 use crate::days::day6::{default_input, parse_input};
 
 pub fn run() {
@@ -10,17 +9,15 @@ pub fn customs_groups_str(input : &str) -> Result<usize, ()> {
 }
 
 pub fn customs_groups(groups : Vec<Vec<&str>>) -> Result<usize, ()> {
-    let mut count = 0;
-    for group in groups {
-        let mut set = BTreeSet::new();
+    Ok(groups.iter().map(|group| {
+        let mut letters = [false; 26];
         for p in group {
             for c in p.chars() {
-                set.insert(c);
+                letters[(c as u8 - b'a') as usize] = true;
             }
         }
-        count += set.len();
-    }
-    Ok(count)
+        letters.iter().filter(|b| **b).count()
+    }).sum())
 }
 
 #[cfg(test)]
