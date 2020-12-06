@@ -71,7 +71,7 @@ pub fn benchmark(day : usize, iter : usize) {
 
 
 #[allow(unused_must_use)]
-fn benchmark_function<T>(input : &str, f : &dyn Fn(&str) -> T, iter : usize) -> f64 {
+fn benchmark_function<'a, T, F: Fn(&'a str) -> T>(input : &'a str, f : F, iter : usize) -> f64 {
     let mut scores = Vec::new();
     for _ in 0..iter {
         let start = Instant::now();

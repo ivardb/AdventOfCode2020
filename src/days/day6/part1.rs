@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, BTreeSet};
 use crate::days::day6::{default_input, parse_input};
 
 pub fn run() {
@@ -12,7 +12,7 @@ pub fn customs_groups_str(input : &str) -> Result<usize, ()> {
 pub fn customs_groups(groups : Vec<Vec<&str>>) -> Result<usize, ()> {
     let mut count = 0;
     for group in groups {
-        let mut set = HashSet::new();
+        let mut set = BTreeSet::new();
         for p in group {
             for c in p.chars() {
                 set.insert(c);

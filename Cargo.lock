@@ -7,6 +7,7 @@ dependencies = [
  "criterion",
  "direction",
  "grid",
+ "itertools",
  "maplit",
  "rand",
 ]

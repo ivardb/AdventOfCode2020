@@ -76,7 +76,7 @@ fn valid_passport(passport : &HashMap<String, String>) -> bool {
                 if value.len() != 3 {
                     return false
                 }
-                if !vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&&**value) {
+                if !vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&value.as_str()) {
                     return false
                 }
             },
