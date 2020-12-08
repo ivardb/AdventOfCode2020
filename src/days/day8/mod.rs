@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 pub mod part1;
 pub mod part2;
 
@@ -21,4 +23,23 @@ pub fn parse_input(input : &str) -> Vec<Command> {
 pub struct Command {
     pub opcode: String,
     pub arg0: i32,
+}
+
+pub enum Instruction {
+    Nop(i64),
+    Jump(i64),
+    Acc(i64),
+}
+
+impl FromStr for Instruction {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.split(" ").collect::<Vec<_>>().as_slice() {
+            ["nop", num] => Ok(Instruction::Nop(num.parse().unwrap())),
+            ["jmp", num] => Ok(Instruction::Jump(num.parse().unwrap())),
+            ["acc", num] => Ok(Instruction::Acc(num.parse().unwrap())),
+            _ => Err(())
+        }
+    }
 }
