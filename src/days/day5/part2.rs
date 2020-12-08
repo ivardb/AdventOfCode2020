@@ -52,7 +52,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn part1_answer() {
+    fn part2_answer() {
         assert_eq!(565, boarding_pass_str(default_input()).unwrap())
     }
 }

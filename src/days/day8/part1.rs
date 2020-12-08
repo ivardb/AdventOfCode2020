@@ -55,7 +55,7 @@ acc +6")).unwrap())
     }
 
     #[test]
-    fn part2_answer() {
+    fn part1_answer() {
         assert_eq!(1337, infinite_loop_str(default_input()).unwrap())
     }
 }
