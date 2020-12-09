@@ -23,7 +23,18 @@ fn find_sum(nums : &[i64], sum : i64) -> bool {
             if nums[i] + nums[j] == sum {
                 return true
             }
-        }
+        } 
     }
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::days::day9::default_input;
+
+    #[test]
+    pub fn part1_answer() {
+        assert_eq!(1038347917, xmas_str(default_input()).unwrap())
+    }
 }

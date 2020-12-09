@@ -34,3 +34,14 @@ pub fn xmas(nums : Vec<i64>, target : i64) -> Result<i64, ()> {
     }
     Err(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::days::day9::default_input;
+
+    #[test]
+    pub fn part2_answer() {
+        assert_eq!(137394018, xmas_str(default_input()).unwrap())
+    }
+}
