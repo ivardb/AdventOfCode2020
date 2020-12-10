@@ -9,3 +9,7 @@ pub fn run() {
 pub fn default_input() -> &'static str {
     include_str!("input")
 }
+
+pub fn parse_input(input : &str) -> Vec<i64> {
+    input.lines().map(|l| l.parse().unwrap()).collect()
+}
