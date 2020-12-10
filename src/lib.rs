@@ -15,6 +15,7 @@ pub fn run(day: usize) {
         8 => day8::run(),
         9 => day9::run(),
         10 => day10::run(),
+        11 => day11::run(),
         _ => {
             println!("Day not valid");
             return
