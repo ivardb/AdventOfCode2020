@@ -2,7 +2,7 @@ use std::io;
 use aoc2020;
 
 fn main() {
-    aoc2020::run(12);
+    aoc2020::run(13);
     loop {
         println!("Enter input: ");
         let mut input = String::new();
