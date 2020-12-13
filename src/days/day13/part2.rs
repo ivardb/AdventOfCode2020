@@ -28,7 +28,6 @@ pub fn busses_str(input : &str) -> Result<i64, ()> {
     let inverses: Vec<_> = coefficients.iter().zip(mods.iter()).map(|(b, modulo)| {     //Get the inverses
         inverse_mod(*b, *modulo)
     }).collect();
-    println!("{:?}", inverses);
     let res : i64 = busses.iter().map(|(x, _)| *x as i64).enumerate().map(|(i, bus)| {      //Final summation
         bus * coefficients.get(i).unwrap() * inverses.get(i).unwrap()
     }).sum();
@@ -61,6 +60,11 @@ fn inverse_mod(mut x: i64, mut m: i64) -> i64 {                                 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    pub fn part2_answer() {
+        assert_eq!(busses_str(default_input()).unwrap(), 327300950120029)
+    }
 
     #[test]
     pub fn example() {

@@ -73,5 +73,11 @@ pub fn day12_benchmark(c : &mut Criterion) {
     c.bench_function("Day 12, Part 2", |b| b.iter(|| criterion_bench_part2(12, &input)));
 }
 
-criterion_group!(benches, day11_benchmark);
+pub fn day13_benchmark(c : &mut Criterion) {
+    let input = include_str!("../src/days/day13/input");
+    c.bench_function("Day 13, Part 1", |b| b.iter(|| criterion_bench_part1(13, &input)));
+    c.bench_function("Day 13, Part 2", |b| b.iter(|| criterion_bench_part2(13, &input)));
+}
+
+criterion_group!(benches, day13_benchmark);
 criterion_main!(benches);

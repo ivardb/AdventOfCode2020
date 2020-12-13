@@ -25,6 +25,11 @@ mod tests {
     use super::*;
 
     #[test]
+    pub fn part1_answer() {
+        assert_eq!(busses_str(default_input()).unwrap(), 102)
+    }
+
+    #[test]
     pub fn example() {
         assert_eq!(busses_str("939
 7,13,x,x,59,x,31,19").unwrap(), 295)
