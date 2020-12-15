@@ -115,6 +115,12 @@ pub fn benchmark(day : usize, iter : usize) {
             t2 = benchmark_function(input, &day14::part2::mask_str, iter);
             tp = benchmark_function(input, &day14::parse_input, iter);
         }
+        15 => {
+            let input = day15::default_input();
+            t1 = benchmark_function(input, |input | {day15::part1::memory_str(input, 2020)}, iter);
+            t2 = benchmark_function(input, |input | {day15::part1::memory_str(input, 30000000)}, iter);
+            tp = benchmark_function(input, &day15::parse_input, iter);
+        }
         _ => {
             println!("Day not valid");
             return
@@ -181,6 +187,9 @@ pub fn criterion_bench_part1(day : usize, input : &str) {
         14 => {
             day14::part1::mask_str(input).unwrap();
         }
+        15 => {
+            day15::part1::memory_str(input, 2020).unwrap();
+        }
         _ => {
             println!("Day not valid");
             return
@@ -231,6 +240,9 @@ pub fn criterion_bench_part2(day : usize, input : &str) {
         }
         14 => {
             day14::part2::mask_str(input).unwrap();
+        }
+        15 => {
+            day15::part1::memory_str(input, 30000000).unwrap();
         }
         _ => {
             println!("Day not valid");
