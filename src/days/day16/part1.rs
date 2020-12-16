@@ -10,9 +10,12 @@ pub fn tickets_str(input: &str) -> Result<i64, ()> {
 }
 
 pub fn tickets(input: TicketInput) -> Result<i64, ()> {
-    Ok(input.other_tickets.iter().flatten().filter(|n| {
-        !input.rules.values().any(|vector| vector.iter().any(|r| (**n <= r.upper) & (**n >= r.lower)))
-    }).sum())
+    Ok(input.other_tickets.iter()
+        .flatten()
+        .filter(|n| !input.rules.values()
+            .any(|vector| vector.iter()
+                .any(|r| (**n <= r.upper) & (**n >= r.lower)))
+    ).sum())
 }
 
 #[cfg(tests)]

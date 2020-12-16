@@ -1,6 +1,6 @@
 use crate::days::day16::{parse_input, TicketInput};
 use crate::days::day16::default_input;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub fn run() {
     println!("{}", tickets_str(default_input()).unwrap());
@@ -36,18 +36,23 @@ pub fn tickets(input: TicketInput) -> Result<i64, ()> {
             let values = options.get(rule).unwrap();
             if values.len() == 1 {
                 match_rule = Some(rule.clone());
-                match_value = Some(values[0].clone())
+                match_value = Some(values[0].clone());
+                break;
             }
         }
         options.remove(match_rule.unwrap());
-        options = options.iter().map(|(k, v)| {
-            (*k, v.iter().cloned().filter(|n| *n != match_value.unwrap()).collect())
-        }).collect();
+        options = options.iter()
+            .map(|(k, v)| {
+                (*k, v.iter().cloned().filter(|n| *n != match_value.unwrap()).collect())
+            })
+            .collect();
         mappings.insert(match_rule.unwrap(), match_value.unwrap());
     }
-    let indexes : Vec<_> = mappings.keys().filter(|k| (***k).starts_with("departure"))
-        .map(|k| *mappings.get(k).unwrap()).collect();
-    Ok(indexes.iter().map(|i| input.ticket[*i]).product())
+    Ok(mappings.keys()
+        .filter(|k| (***k).starts_with("departure"))
+        .map(|k| *mappings.get(k).unwrap())
+        .map(|i| input.ticket[i])
+        .product())
 }
 
 #[cfg(tests)]
