@@ -53,6 +53,7 @@ mod tests {
         assert_eq!(memory_str(default_input(), 2020).unwrap(), 639)
     }
 
+    #[ignore]
     #[test]
     pub fn part2_answer() {
         assert_eq!(memory_str(default_input(), 30000000).unwrap(), 266)
