@@ -12,6 +12,7 @@ pub fn picture_str(input : &str) -> Result<usize, ()> {
 }
 
 pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
+    let picture_map : HashMap<_,_> = pictures.iter().map(|p| (p.id, p.clone())).collect();
     let picture_width = pictures[0].pixels.cols();
     let picture_height = pictures[0].pixels.rows();
     let dimension = (pictures.len() as f64).sqrt() as usize;
@@ -82,6 +83,171 @@ pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
     let corner_edges = edges.iter().filter(|b| b.id == start_corner).sorted_by_key(|e| e.side.to_index()).collect::<Vec<&BorderId>>();
     let start_edge = corner_edges[1];
     let top_edge = corner_edges[0];
+    let orientation = get_orientation(top_edge.side, start_edge.side);
+    let rotated = orientation.iter().fold(picture_map.get(&start_corner).unwrap().pixels.clone(), |p, o| orientate(p, *o));
+    let mut picture_cols: Vec<Vec<Grid<char>>> = Vec::new();
+    for _i in 0..dimension {
+        picture_cols.push(Vec::new());
+    }
+    picture_cols[0].push(rotated.clone());
+    let mut last_col_id = start_edge.opposite();
+    let mut last_col = rotated.iter_col(rotated.cols() - 1).map(|c| *c).collect_vec();
+    let mut ids = Vec::new();
+    ids.push(start_corner);
+    for i in 1..dimension {
+        let matched = matches.get(&last_col_id).unwrap()[0];
+        let matched_grid = picture_map.get(&matched.matched.id).unwrap().pixels.clone();
+        for orientation in possible_orientations() {
+            let rotate = orientation.iter().fold(matched_grid.clone(), |p, o| orientate(p, *o));
+            let first_col = rotate.iter_col(0).map(|c| *c).collect_vec();
+            if first_col == last_col {
+                last_col = rotate.iter_col(rotate.cols() -1).map(|c| *c).collect_vec();
+                last_col_id = matched.matched.opposite();
+                picture_cols[i].push(rotate);
+                ids.push(matched.matched.id);
+                break;
+            }
+        }
+    }
+
+    for i in 0..dimension {
+        let old_pic = &picture_cols[i][0];
+        let mut last_row = old_pic.iter_row(old_pic.rows() - 1).map(|c| *c).collect_vec();
+        let id = ids[i];
+        let side = get_side(&last_row, border_map.get(&id).unwrap()).unwrap();
+        let mut last_row_id = BorderId {id, side};
+        for _j in 1..dimension {
+            let matched = matches.get(&last_row_id).unwrap()[0];
+            let matched_grid = picture_map.get(&matched.matched.id).unwrap().pixels.clone();
+            for orientation in possible_orientations() {
+                let rotate = orientation.iter().fold(matched_grid.clone(), |p, o| orientate(p, *o));
+                let first_row = rotate.iter_row(0).map(|c| *c).collect_vec();
+                if first_row == last_row {
+                    last_row = rotate.iter_row(rotate.rows() - 1).map(|c| *c).collect_vec();
+                    last_row_id = matched.matched.opposite();
+                    picture_cols[i].push(rotate);
+                    break;
+                }
+            }
+        }
+    }
+    let mut picture = Vec::new();
+    for ygrid in 0..dimension {
+        for j in 1..picture_height -1 {
+            let mut picture_row = Vec::new();
+            for i in 0..dimension {
+                for k in 1..picture_width - 1 {
+                    picture_row.push(picture_cols[i][ygrid][j][k])
+                }
+            }
+            picture.push(picture_row);
+        }
+    }
+
+    //Find monsters
+    let mut found = false;
+    for orientations in possible_orientations() {
+        let mut after_move_picture = orientations.iter().fold(picture.clone(), |pic, o| {
+            orientate_vec(&pic, *o)
+        });
+        for i in 1..after_move_picture.len() - 1 {
+            for j in 0..after_move_picture.len() - 19 {
+                if find_monster(&mut after_move_picture, i, j) {
+                    found = true;
+                }
+            }
+        }
+        if found == true {
+            return Ok(after_move_picture.iter().flatten().filter(|c| **c == '#').count())
+        }
+    }
+    Err(())
+}
+
+fn get_side(row: &Vec<char>, borders: &Vec<Vec<char>>) -> Result<Side, ()> {
+    let mut reverse = row.clone();
+    reverse.reverse();
+    for (i, border) in borders.iter().enumerate() {
+        if row == border {
+            return Ok(Side::from_id(i))
+        } else if &reverse == border {
+            return Ok(Side::from_id(i))
+        }
+    }
+    Err(())
+}
+
+pub fn picture2(pictures : Vec<Picture>) -> Result<usize, ()> {
+    let picture_width = pictures[0].pixels.cols();
+    let picture_height = pictures[0].pixels.rows();
+    let dimension = (pictures.len() as f64).sqrt() as usize;
+    let mut border_map = HashMap::new();
+    for picture in &pictures {
+        let mut borders : Vec<Vec<char>> = Vec::new();
+        borders.push(picture.pixels.iter_row(0).map(|c| *c).collect());
+        borders.push(picture.pixels.iter_row(picture_height - 1).map(|c| *c).collect());
+        let mut border = Vec::new();
+        for c in picture.pixels.iter_col(0) {
+            border.push(*c);
+        }
+        borders.push(border);
+        let mut border = Vec::new();
+        for c in picture.pixels.iter_col(picture_width - 1) {
+            border.push(*c);
+        }
+        borders.push(border);
+        border_map.insert(picture.id, borders);
+    }
+    let mut matches : HashMap<BorderId, Vec<Match>> = HashMap::new();
+    let mut reversed : HashMap<BorderId, Vec<char>> = HashMap::new();
+    for p1 in &pictures {
+        for (i, b1) in border_map.get(&p1.id).unwrap().iter().enumerate() {
+            let border_id = BorderId::from_ids(p1.id, i);
+            let mut reverse = b1.clone();
+            reverse.reverse();
+            reversed.insert(border_id, reverse);
+            matches.insert(border_id, Vec::new());
+
+            for p2 in &pictures {
+                if p1.id == p2.id {
+                    continue
+                }
+                for (j, b2) in border_map.get(&p2.id).unwrap().iter().enumerate() {
+                    let border_id2 = BorderId::from_ids(p2.id, j);
+                    if b2 == b1 {
+                        let matched = Match {
+                            matched: border_id2,
+                            reversed: false
+                        };
+                        matches.entry(border_id)
+                            .and_modify(|v| v.push(matched));
+                    }
+                    if b2 == reversed.get(&border_id).unwrap() {
+                        let matched = Match {
+                            matched: border_id2,
+                            reversed: true
+                        };
+                        matches.entry(border_id)
+                            .and_modify(|v| v.push(matched));
+                    }
+                }
+            }
+        }
+    }
+    let edges : Vec<_> = matches.iter().filter(|(_id, matches)| matches.len() == 0).map(|(id, _matches)| *id).collect();
+    let mut count = HashMap::new();
+    for id in &edges {
+        *count.entry(id.id).or_insert(0) += 1;
+    }
+    let corners : Vec<_> = count.iter().filter(|(_k,v)| **v == 2).map(|(k, _v)| *k).sorted().collect();
+
+
+    let start_corner = 1951;//corners[0];
+
+
+    let corner_edges = edges.iter().filter(|b| b.id == start_corner).sorted_by_key(|e| e.side.to_index()).collect::<Vec<&BorderId>>();
+    let start_edge = corner_edges[1];
+    let top_edge = corner_edges[0];
     let mut locations : Grid<Location> = Grid::new(dimension, dimension);
     let orientation = get_orientation(top_edge.side, start_edge.side);
 
@@ -121,6 +287,7 @@ pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
     for i in 0..dimension {
         let start_location = &locations[0][i];
         let (top, left) = get_top_left(&start_location.orientation);
+        println!("{:?}", get_top_left(&start_location.orientation));
         let mut curr_edge = BorderId {id:start_location.id, side: top};
         let mut curr_reversed = match (top, left) {
             (_, Side::Right) => true,
@@ -132,6 +299,7 @@ pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
             (_, _) => false
         };
         for j in 1..dimension {
+            println!("i:{}, j: {}, location: {:?}, curr_edge: {:?}", i, j, &locations[0][i].clone(), &curr_edge);
             let matched = matches.get(&curr_edge.opposite()).unwrap()[0];
 
             let mut left_side = match matched.matched.side {
@@ -319,14 +487,14 @@ fn get_orientation(top : Side, left : Side) -> Vec<Orientation> {
             }
         }
         Side::Left => {
-            orientations.push(Orientation::RotateRight);
+            orientations.push(Orientation::RotateLeft);
             match left {
                 Side::Top => orientations.push(Orientation::FlipHorizontal),
                 _ => {}
             }
         }
         Side::Right => {
-            orientations.push(Orientation::RotateLeft);
+            orientations.push(Orientation::RotateRight);
             match left {
                 Side::Bottom => orientations.push(Orientation::FlipHorizontal),
                 _ => {}

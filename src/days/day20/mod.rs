@@ -27,6 +27,7 @@ pub fn parse_input(input : &str) -> Vec<Picture>{
     }).collect()
 }
 
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Picture {
     pub id : i64,
     pub pixels : Grid<char>
