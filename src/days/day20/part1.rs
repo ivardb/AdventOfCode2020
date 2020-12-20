@@ -1,4 +1,4 @@
-use crate::days::day20::{Picture, parse_input, default_input};
+use crate::days::day20::{Picture, parse_input, default_input, compute_borders};
 use std::collections::HashMap;
 
 pub fn run() {
@@ -10,25 +10,9 @@ pub fn picture_str(input : &str) -> Result<i64, ()> {
 }
 
 pub fn picture(pictures : Vec<Picture>) -> Result<i64, ()> {
-    let picture_width = pictures[0].pixels.cols();
-    let picture_height = pictures[0].pixels.rows();
-    let mut border_map = HashMap::new();
-    for picture in &pictures {
-        let mut borders : Vec<Vec<char>> = Vec::new();
-        borders.push(picture.pixels.iter_row(0).map(|c| *c).collect());
-        borders.push(picture.pixels.iter_row(picture_height - 1).map(|c| *c).collect());
-        let mut border = Vec::new();
-        for c in picture.pixels.iter_col(0) {
-            border.push(*c);
-        }
-        borders.push(border);
-        let mut border = Vec::new();
-        for c in picture.pixels.iter_col(picture_width - 1) {
-            border.push(*c);
-        }
-        borders.push(border);
-        border_map.insert(picture.id, borders);
-    }
+    let picture_size = pictures[0].pixels.cols();
+    let border_map = compute_borders(&pictures, picture_size);
+
     let mut edges : HashMap<i64, Vec<Vec<char>>> = HashMap::new();
     for picture in &pictures {
         for border in border_map.get(&picture.id).unwrap() {
@@ -59,5 +43,10 @@ pub mod tests {
     #[test]
     pub fn example() {
         assert_eq!(20899048083289, picture_str(include_str!("example1")).unwrap())
+    }
+
+    #[test]
+    pub fn part1_answer() {
+        assert_eq!(18411576553343, picture_str(default_input()).unwrap())
     }
 }

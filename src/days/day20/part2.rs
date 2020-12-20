@@ -1,4 +1,4 @@
-use crate::days::day20::{Picture, parse_input, default_input};
+use crate::days::day20::{Picture, parse_input, default_input, compute_borders};
 use std::collections::HashMap;
 use grid::Grid;
 use itertools::Itertools;
@@ -13,26 +13,11 @@ pub fn picture_str(input : &str) -> Result<usize, ()> {
 
 pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
     let picture_map : HashMap<_,_> = pictures.iter().map(|p| (p.id, p.clone())).collect();
-    let picture_width = pictures[0].pixels.cols();
-    let picture_height = pictures[0].pixels.rows();
+    let picture_size = pictures[0].pixels.cols();
     let dimension = (pictures.len() as f64).sqrt() as usize;
-    let mut border_map = HashMap::new();
-    for picture in &pictures {
-        let mut borders : Vec<Vec<char>> = Vec::new();
-        borders.push(picture.pixels.iter_row(0).map(|c| *c).collect());
-        borders.push(picture.pixels.iter_row(picture_height - 1).map(|c| *c).collect());
-        let mut border = Vec::new();
-        for c in picture.pixels.iter_col(0) {
-            border.push(*c);
-        }
-        borders.push(border);
-        let mut border = Vec::new();
-        for c in picture.pixels.iter_col(picture_width - 1) {
-            border.push(*c);
-        }
-        borders.push(border);
-        border_map.insert(picture.id, borders);
-    }
+
+    let border_map = compute_borders(&pictures, picture_size);
+
     let mut matches : HashMap<BorderId, Vec<Match>> = HashMap::new();
     let mut reversed : HashMap<BorderId, Vec<char>> = HashMap::new();
     for p1 in &pictures {
@@ -133,10 +118,10 @@ pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
     }
     let mut picture = Vec::new();
     for ygrid in 0..dimension {
-        for j in 1..picture_height -1 {
+        for j in 1..picture_size -1 {
             let mut picture_row = Vec::new();
             for i in 0..dimension {
-                for k in 1..picture_width - 1 {
+                for k in 1..picture_size - 1 {
                     picture_row.push(picture_cols[i][ygrid][j][k])
                 }
             }
@@ -177,207 +162,6 @@ fn get_side(row: &Vec<char>, borders: &Vec<Vec<char>>) -> Result<Side, ()> {
     Err(())
 }
 
-pub fn picture2(pictures : Vec<Picture>) -> Result<usize, ()> {
-    let picture_width = pictures[0].pixels.cols();
-    let picture_height = pictures[0].pixels.rows();
-    let dimension = (pictures.len() as f64).sqrt() as usize;
-    let mut border_map = HashMap::new();
-    for picture in &pictures {
-        let mut borders : Vec<Vec<char>> = Vec::new();
-        borders.push(picture.pixels.iter_row(0).map(|c| *c).collect());
-        borders.push(picture.pixels.iter_row(picture_height - 1).map(|c| *c).collect());
-        let mut border = Vec::new();
-        for c in picture.pixels.iter_col(0) {
-            border.push(*c);
-        }
-        borders.push(border);
-        let mut border = Vec::new();
-        for c in picture.pixels.iter_col(picture_width - 1) {
-            border.push(*c);
-        }
-        borders.push(border);
-        border_map.insert(picture.id, borders);
-    }
-    let mut matches : HashMap<BorderId, Vec<Match>> = HashMap::new();
-    let mut reversed : HashMap<BorderId, Vec<char>> = HashMap::new();
-    for p1 in &pictures {
-        for (i, b1) in border_map.get(&p1.id).unwrap().iter().enumerate() {
-            let border_id = BorderId::from_ids(p1.id, i);
-            let mut reverse = b1.clone();
-            reverse.reverse();
-            reversed.insert(border_id, reverse);
-            matches.insert(border_id, Vec::new());
-
-            for p2 in &pictures {
-                if p1.id == p2.id {
-                    continue
-                }
-                for (j, b2) in border_map.get(&p2.id).unwrap().iter().enumerate() {
-                    let border_id2 = BorderId::from_ids(p2.id, j);
-                    if b2 == b1 {
-                        let matched = Match {
-                            matched: border_id2,
-                            reversed: false
-                        };
-                        matches.entry(border_id)
-                            .and_modify(|v| v.push(matched));
-                    }
-                    if b2 == reversed.get(&border_id).unwrap() {
-                        let matched = Match {
-                            matched: border_id2,
-                            reversed: true
-                        };
-                        matches.entry(border_id)
-                            .and_modify(|v| v.push(matched));
-                    }
-                }
-            }
-        }
-    }
-    let edges : Vec<_> = matches.iter().filter(|(_id, matches)| matches.len() == 0).map(|(id, _matches)| *id).collect();
-    let mut count = HashMap::new();
-    for id in &edges {
-        *count.entry(id.id).or_insert(0) += 1;
-    }
-    let corners : Vec<_> = count.iter().filter(|(_k,v)| **v == 2).map(|(k, _v)| *k).sorted().collect();
-
-
-    let start_corner = 1951;//corners[0];
-
-
-    let corner_edges = edges.iter().filter(|b| b.id == start_corner).sorted_by_key(|e| e.side.to_index()).collect::<Vec<&BorderId>>();
-    let start_edge = corner_edges[1];
-    let top_edge = corner_edges[0];
-    let mut locations : Grid<Location> = Grid::new(dimension, dimension);
-    let orientation = get_orientation(top_edge.side, start_edge.side);
-
-
-    locations[0][0] = Location {id: start_corner, orientation: orientation.clone()};
-    let mut curr_row_edge = start_edge.clone();
-
-    let mut curr_reversed = match (top_edge.side, start_edge.side) {
-        (Side::Top, _) => false,
-        (Side::Bottom, _) => true,
-        (Side::Right, Side::Top) => true,
-        (Side::Right, Side::Bottom) => false,
-        (Side::Left, Side::Top) => false,
-        (Side::Left, Side::Bottom) => true,
-        (_, _) => false
-    };
-    for i in 1..dimension {
-        let matched = matches.get(&curr_row_edge.opposite()).unwrap()[0];
-        let mut top_side = match matched.matched.side {
-            Side::Top => {Side::Right}
-            Side::Bottom => {Side::Left}
-            Side::Left => {Side::Top}
-            Side::Right => {Side::Top}
-        };
-
-        curr_reversed =  matched.reversed ^ curr_reversed;
-        if curr_reversed {
-            top_side = top_side.opposite();
-        }
-
-        let orientation = get_orientation(top_side, matched.matched.side);
-        locations[0][i] = Location {id: matched.matched.id, orientation: orientation.clone()};
-
-        curr_row_edge = matched.matched;
-    }
-
-    for i in 0..dimension {
-        let start_location = &locations[0][i];
-        let (top, left) = get_top_left(&start_location.orientation);
-        println!("{:?}", get_top_left(&start_location.orientation));
-        let mut curr_edge = BorderId {id:start_location.id, side: top};
-        let mut curr_reversed = match (top, left) {
-            (_, Side::Right) => true,
-            (_, Side::Left) => false,
-            (Side::Left, Side::Top) => false,
-            (Side::Left, Side::Bottom) => true,
-            (Side::Right, Side::Top) => true,
-            (Side::Right, Side::Bottom) => false,
-            (_, _) => false
-        };
-        for j in 1..dimension {
-            println!("i:{}, j: {}, location: {:?}, curr_edge: {:?}", i, j, &locations[0][i].clone(), &curr_edge);
-            let matched = matches.get(&curr_edge.opposite()).unwrap()[0];
-
-            let mut left_side = match matched.matched.side {
-                Side::Top => {Side::Left}
-                Side::Bottom => {Side::Left}
-                Side::Left => {Side::Bottom}
-                Side::Right => {Side::Top}
-            };
-            curr_reversed =  matched.reversed ^ curr_reversed;
-            if curr_reversed {
-                left_side = left_side.opposite();
-            }
-            let orientation = get_orientation(matched.matched.side, left_side);
-            locations[j][i] = Location {id: matched.matched.id, orientation: orientation.clone()};
-
-            curr_edge = matched.matched;
-        }
-    }
-
-    println!("{:?}", locations);
-
-    let mut picture_grid = Vec::new();
-    for i in 0..dimension {
-        let mut picture_row : Vec<Grid<char>> = Vec::new();
-        for location in locations.iter_row(i) {
-            picture_row.push(location.orientation.iter()
-                .fold(pictures.iter().filter(|p| p.id == location.id).collect_vec()[0].pixels.clone(), |pic : Grid<char>, or| {
-                    orientate(pic, *or)
-                }))
-        }
-        picture_grid.push(picture_row)
-    }
-
-    //Construct final picture
-    let mut picture = Vec::new();
-    for i in 0..dimension {
-        for j in 1..picture_height -1 {
-            let mut picture_row = Vec::new();
-            for v in &picture_grid[i] {
-                for k in 1..v.cols() -1 {
-                    picture_row.push(v[j][k]);
-                }
-            }
-            picture.push(picture_row);
-        }
-    }
-
-    let orientations = vec![Orientation::FlipHorizontal, Orientation::FlipVertical];
-    let test_pic = orientations.iter().fold(picture.clone(), |pic, o| {
-        orientate_vec(&pic, *o)
-    });
-    for v in &test_pic {
-        for c in v {
-            print!("{}", c);
-        }
-        println!()
-    }
-
-    //Find monsters
-    let mut found = false;
-    for orientations in possible_orientations() {
-        let mut after_move_picture = orientations.iter().fold(picture.clone(), |pic, o| {
-            orientate_vec(&pic, *o)
-        });
-        for i in 1..after_move_picture.len() - 1 {
-            for j in 0..after_move_picture.len() - 19 {
-                if find_monster(&mut after_move_picture, i, j) {
-                    found = true;
-                }
-            }
-        }
-        if found == true {
-            return Ok(after_move_picture.iter().flatten().filter(|c| **c == '#').count())
-        }
-    }
-    Err(())
-}
-
 fn possible_orientations() -> Vec<Vec<Orientation>> {
     vec![
         get_orientation(Side::Top, Side::Left),
@@ -406,15 +190,6 @@ fn find_monster(picture : &mut Vec<Vec<char>>, x:usize, y:usize) -> bool {
         true
     } else {
         false
-    }
-}
-
-fn print_grid(input : &Grid<char>) {
-    for i in 0..input.rows() {
-        for j in 0..input.cols() {
-            print!("{}", input[i][j])
-        }
-        println!()
     }
 }
 
@@ -450,26 +225,6 @@ fn orientate(grid : Grid<char>, orientation : Orientation) -> Grid<char> {
     res
 }
 
-fn get_top_left(orientations: &Vec<Orientation>) -> (Side, Side) {
-    let mut top = Side::Top;
-    let mut left = Side::Left;
-    for orientation in orientations {
-        match orientation {
-            Orientation::FlipVertical => {top = top.opposite()}
-            Orientation::FlipHorizontal => {left = left.opposite()}
-            Orientation::RotateRight => {
-                top = top.to_the_right();
-                left = left.to_the_right();
-            }
-            Orientation::RotateLeft => {
-                top = top.to_the_left();
-                left = left.to_the_left();
-            }
-        }
-    }
-    (top, left)
-}
-
 fn get_orientation(top : Side, left : Side) -> Vec<Orientation> {
     let mut orientations = Vec::new();
     match top {
@@ -502,21 +257,6 @@ fn get_orientation(top : Side, left : Side) -> Vec<Orientation> {
         }
     }
     orientations
-}
-
-#[derive(PartialEq, Eq, Hash, Clone, Debug)]
-struct Location {
-    id: i64,
-    orientation: Vec<Orientation>
-}
-
-impl Default for Location {
-    fn default() -> Self {
-        Location {
-            id: -1,
-            orientation: Vec::new()
-        }
-    }
 }
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
@@ -590,24 +330,6 @@ impl Side {
             Side::Right => Side::Left,
         }
     }
-
-    pub fn to_the_right(&self) -> Self {
-        match self {
-            Side::Top => Side::Right,
-            Side::Bottom => Side::Left,
-            Side::Left => Side::Top,
-            Side::Right => Side::Bottom,
-        }
-    }
-
-    pub fn to_the_left(&self) -> Self {
-        match self {
-            Side::Top => Side::Left,
-            Side::Bottom => Side::Right,
-            Side::Left => Side::Bottom,
-            Side::Right => Side::Top,
-        }
-    }
 }
 
 #[cfg(test)]
@@ -617,5 +339,10 @@ pub mod tests {
     #[test]
     pub fn example() {
         assert_eq!(273, picture_str(include_str!("example1")).unwrap())
+    }
+
+    #[test]
+    pub fn part2_answer() {
+        assert_eq!(2002, picture_str(default_input()).unwrap())
     }
 }
