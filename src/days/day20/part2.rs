@@ -7,11 +7,11 @@ pub fn run() {
     println!("{}", picture_str(default_input()).unwrap())
 }
 
-pub fn picture_str(input : &str) -> Result<i64, ()> {
+pub fn picture_str(input : &str) -> Result<usize, ()> {
     picture(parse_input(input))
 }
 
-pub fn picture(pictures : Vec<Picture>) -> Result<i64, ()> {
+pub fn picture(pictures : Vec<Picture>) -> Result<usize, ()> {
     let picture_width = pictures[0].pixels.cols();
     let picture_height = pictures[0].pixels.rows();
     let dimension = (pictures.len() as f64).sqrt() as usize;
@@ -73,75 +73,86 @@ pub fn picture(pictures : Vec<Picture>) -> Result<i64, ()> {
     for id in &edges {
         *count.entry(id.id).or_insert(0) += 1;
     }
-    let corners : Vec<_> = count.iter().filter(|(_k,v)| **v == 2).map(|(k, _v)| *k).collect();
+    let corners : Vec<_> = count.iter().filter(|(_k,v)| **v == 2).map(|(k, _v)| *k).sorted().collect();
 
 
-    let start_corner = 1951;
-    let corner_edges = edges.iter().filter(|b| b.id == start_corner).collect::<Vec<&BorderId>>();
-    let start_edge = corner_edges[0];
-    let top_edge = corner_edges[1];
+    let start_corner = corners[0];
+
+
+    let corner_edges = edges.iter().filter(|b| b.id == start_corner).sorted_by_key(|e| e.side.to_index()).collect::<Vec<&BorderId>>();
+    let start_edge = corner_edges[1];
+    let top_edge = corner_edges[0];
     let mut locations : Grid<Location> = Grid::new(dimension, dimension);
     let orientation = get_orientation(top_edge.side, start_edge.side);
+
+
     locations[0][0] = Location {id: start_corner, orientation: orientation.clone()};
     let mut curr_row_edge = start_edge.clone();
 
-    let mut curr_reversed = false;
-    if orientation.contains(&Orientation::RotateLeft) {
-        curr_reversed = !curr_reversed;
-    }
-    if orientation.contains(&Orientation::FlipVertical) {
-        curr_reversed = !curr_reversed;
-    }
+    let mut curr_reversed = match (top_edge.side, start_edge.side) {
+        (Side::Top, _) => false,
+        (Side::Bottom, _) => true,
+        (Side::Right, Side::Top) => true,
+        (Side::Right, Side::Bottom) => false,
+        (Side::Left, Side::Top) => false,
+        (Side::Left, Side::Bottom) => true,
+        (_, _) => false
+    };
     for i in 1..dimension {
         let matched = matches.get(&curr_row_edge.opposite()).unwrap()[0];
-        let mut top_side = matched.matched.side.to_the_right();
-        if matched.reversed ^ curr_reversed {
+        let mut top_side = match matched.matched.side {
+            Side::Top => {Side::Right}
+            Side::Bottom => {Side::Left}
+            Side::Left => {Side::Top}
+            Side::Right => {Side::Top}
+        };
+
+        curr_reversed =  matched.reversed ^ curr_reversed;
+        if curr_reversed {
             top_side = top_side.opposite();
         }
-        let orientation = get_orientation(top_side, matched.matched.side);
-        locations[i][0] = Location {id: matched.matched.id, orientation: orientation.clone()};
 
-        curr_reversed = false;
-        if orientation.contains(&Orientation::RotateLeft) {
-            curr_reversed = !curr_reversed;
-        }
-        if orientation.contains(&Orientation::FlipVertical) {
-            curr_reversed = !curr_reversed;
-        }
+        let orientation = get_orientation(top_side, matched.matched.side);
+        locations[0][i] = Location {id: matched.matched.id, orientation: orientation.clone()};
+
         curr_row_edge = matched.matched;
     }
 
     for i in 0..dimension {
-        let start_location = &locations[i][0];
-        let (top, _) = get_top_left(&start_location.orientation);
+        let start_location = &locations[0][i];
+        let (top, left) = get_top_left(&start_location.orientation);
         let mut curr_edge = BorderId {id:start_location.id, side: top};
-        let mut curr_reversed = false;
-        if orientation.contains(&Orientation::RotateRight) {
-            curr_reversed = !curr_reversed;
-        }
-        if orientation.contains(&Orientation::FlipHorizontal) {
-            curr_reversed = !curr_reversed;
-        }
+        let mut curr_reversed = match (top, left) {
+            (_, Side::Right) => true,
+            (_, Side::Left) => false,
+            (Side::Left, Side::Top) => false,
+            (Side::Left, Side::Bottom) => true,
+            (Side::Right, Side::Top) => true,
+            (Side::Right, Side::Bottom) => false,
+            (_, _) => false
+        };
         for j in 1..dimension {
             let matched = matches.get(&curr_edge.opposite()).unwrap()[0];
-            let mut left_side = matched.matched.side.to_the_left();
-            if matched.reversed ^ curr_reversed {
+
+            let mut left_side = match matched.matched.side {
+                Side::Top => {Side::Left}
+                Side::Bottom => {Side::Left}
+                Side::Left => {Side::Bottom}
+                Side::Right => {Side::Top}
+            };
+            curr_reversed =  matched.reversed ^ curr_reversed;
+            if curr_reversed {
                 left_side = left_side.opposite();
             }
             let orientation = get_orientation(matched.matched.side, left_side);
-            locations[i][j] = Location {id: matched.matched.id, orientation: orientation.clone()};
+            locations[j][i] = Location {id: matched.matched.id, orientation: orientation.clone()};
 
-            if orientation.contains(&Orientation::RotateRight) {
-                curr_reversed = !curr_reversed;
-            }
-            if orientation.contains(&Orientation::FlipHorizontal) {
-                curr_reversed = !curr_reversed;
-            }
             curr_edge = matched.matched;
         }
     }
 
     println!("{:?}", locations);
+
     let mut picture_grid = Vec::new();
     for i in 0..dimension {
         let mut picture_row : Vec<Grid<char>> = Vec::new();
@@ -153,12 +164,107 @@ pub fn picture(pictures : Vec<Picture>) -> Result<i64, ()> {
         }
         picture_grid.push(picture_row)
     }
-    for v in &picture_grid[0] {
-        for i in 0..v.cols() {
-            print!("{}", v[0][i])
+
+    //Construct final picture
+    let mut picture = Vec::new();
+    for i in 0..dimension {
+        for j in 1..picture_height -1 {
+            let mut picture_row = Vec::new();
+            for v in &picture_grid[i] {
+                for k in 1..v.cols() -1 {
+                    picture_row.push(v[j][k]);
+                }
+            }
+            picture.push(picture_row);
+        }
+    }
+
+    let orientations = vec![Orientation::FlipHorizontal, Orientation::FlipVertical];
+    let test_pic = orientations.iter().fold(picture.clone(), |pic, o| {
+        orientate_vec(&pic, *o)
+    });
+    for v in &test_pic {
+        for c in v {
+            print!("{}", c);
+        }
+        println!()
+    }
+
+    //Find monsters
+    let mut found = false;
+    for orientations in possible_orientations() {
+        let mut after_move_picture = orientations.iter().fold(picture.clone(), |pic, o| {
+            orientate_vec(&pic, *o)
+        });
+        for i in 1..after_move_picture.len() - 1 {
+            for j in 0..after_move_picture.len() - 19 {
+                if find_monster(&mut after_move_picture, i, j) {
+                    found = true;
+                }
+            }
+        }
+        if found == true {
+            return Ok(after_move_picture.iter().flatten().filter(|c| **c == '#').count())
         }
     }
     Err(())
+}
+
+fn possible_orientations() -> Vec<Vec<Orientation>> {
+    vec![
+        get_orientation(Side::Top, Side::Left),
+        get_orientation(Side::Top, Side::Right),
+        get_orientation(Side::Bottom, Side::Left),
+        get_orientation(Side::Bottom, Side::Right),
+        get_orientation(Side::Left, Side::Top),
+        get_orientation(Side::Left, Side::Bottom),
+        get_orientation(Side::Right, Side::Top),
+        get_orientation(Side::Right, Side::Bottom)
+    ]
+}
+
+fn find_monster(picture : &mut Vec<Vec<char>>, x:usize, y:usize) -> bool {
+    let pattern = [(0,0), (1,1), (1, 4), (0, 5), (0,6), (1,7), (1, 10), (0, 11), (0, 12), (1, 13), (1, 16), (0, 17), (0, 18), (-1, 18), (0, 19)];
+    if pattern.iter().all(|(dx, dy)| {
+        let newx = (x as i64 + dx) as usize;
+        let newy = (y as i64 + dy) as usize;
+        picture[newx][newy] == '#'
+    }) {
+        for (dx, dy) in &pattern {
+            let newx = (x as i64 + dx) as usize;
+            let newy = (y as i64 + dy) as usize;
+            picture[newx][newy] = '0';
+        }
+        true
+    } else {
+        false
+    }
+}
+
+fn print_grid(input : &Grid<char>) {
+    for i in 0..input.rows() {
+        for j in 0..input.cols() {
+            print!("{}", input[i][j])
+        }
+        println!()
+    }
+}
+
+fn orientate_vec(vector: &Vec<Vec<char>>, orientation : Orientation) -> Vec<Vec<char>> {
+    let mut res = Vec::new();
+    for i in 0..vector.len() {
+        let mut vec_row = Vec::new();
+        for j in 0..vector[i].len() {
+            vec_row.push( match orientation {
+                Orientation::FlipHorizontal => {vector[i][vector.len() -1 - j]}
+                Orientation::FlipVertical => {vector[vector.len() -1 - i][j]}
+                Orientation::RotateLeft => {vector[j][vector.len() -1 - i]}
+                Orientation::RotateRight => {vector[vector.len() - 1 - j][i]}
+            })
+        }
+        res.push(vec_row);
+    }
+    res
 }
 
 fn orientate(grid : Grid<char>, orientation : Orientation) -> Grid<char> {
@@ -166,14 +272,14 @@ fn orientate(grid : Grid<char>, orientation : Orientation) -> Grid<char> {
     for i in 0..grid.rows() {
         for j in 0..grid.cols() {
             res[i][j] = match orientation {
-                Orientation::FlipVertical => {grid[i][grid.cols() -1 - j]}
-                Orientation::FlipHorizontal => {grid[grid.rows() -1 - i][j]}
+                Orientation::FlipHorizontal => {grid[i][grid.cols() -1 - j]}
+                Orientation::FlipVertical => {grid[grid.rows() -1 - i][j]}
                 Orientation::RotateLeft => {grid[j][grid.cols() -1 - i]}
                 Orientation::RotateRight => {grid[grid.rows() - 1 - j][i]}
             }
         }
     }
-    grid
+    res
 }
 
 fn get_top_left(orientations: &Vec<Orientation>) -> (Side, Side) {
@@ -183,11 +289,11 @@ fn get_top_left(orientations: &Vec<Orientation>) -> (Side, Side) {
         match orientation {
             Orientation::FlipVertical => {top = top.opposite()}
             Orientation::FlipHorizontal => {left = left.opposite()}
-            Orientation::RotateLeft => {
+            Orientation::RotateRight => {
                 top = top.to_the_right();
                 left = left.to_the_right();
             }
-            Orientation::RotateRight => {
+            Orientation::RotateLeft => {
                 top = top.to_the_left();
                 left = left.to_the_left();
             }
@@ -199,7 +305,12 @@ fn get_top_left(orientations: &Vec<Orientation>) -> (Side, Side) {
 fn get_orientation(top : Side, left : Side) -> Vec<Orientation> {
     let mut orientations = Vec::new();
     match top {
-        Side::Top => {}
+        Side::Top => {
+            match left {
+                Side::Right => orientations.push(Orientation::FlipHorizontal),
+                _ => {}
+            }
+        }
         Side::Bottom => {
             orientations.push(Orientation::FlipVertical);
             match left {
@@ -209,14 +320,14 @@ fn get_orientation(top : Side, left : Side) -> Vec<Orientation> {
         }
         Side::Left => {
             orientations.push(Orientation::RotateRight);
-            match top {
+            match left {
                 Side::Top => orientations.push(Orientation::FlipHorizontal),
                 _ => {}
             }
         }
         Side::Right => {
             orientations.push(Orientation::RotateLeft);
-            match top {
+            match left {
                 Side::Bottom => orientations.push(Orientation::FlipHorizontal),
                 _ => {}
             }
@@ -337,6 +448,6 @@ pub mod tests {
 
     #[test]
     pub fn example() {
-        assert_eq!(20899048083289, picture_str(include_str!("example1")).unwrap())
+        assert_eq!(273, picture_str(include_str!("example1")).unwrap())
     }
 }
