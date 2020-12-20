@@ -13,7 +13,7 @@ pub fn default_input() -> &'static str {
     include_str!("input")
 }
 
-pub fn parse_input(input : &str) -> Vec<Picture>{
+pub fn parse_input(input : &str) -> HashMap<i64, Picture>{
     input.split("\n\n").map(|t| {
         let mut lines = t.lines();
         let id_line = lines.next().unwrap();
@@ -24,13 +24,13 @@ pub fn parse_input(input : &str) -> Vec<Picture>{
         for line in lines {
             grid.push_row(line.chars().collect())
         }
-        Picture {id, pixels: grid}
+        (id, Picture {id, pixels: grid})
     }).collect()
 }
 
-pub fn compute_borders(pictures: &Vec<Picture>, picture_size : usize) -> HashMap<i64, Vec<Vec<char>>> {
+pub fn compute_borders(pictures: &HashMap<i64, Picture>, picture_size : usize) -> HashMap<i64, Vec<Vec<char>>> {
     let mut border_map = HashMap::new();
-    for picture in pictures {
+    for picture in pictures.values() {
         let mut borders : Vec<Vec<char>> = Vec::new();
         borders.push(picture.pixels.iter_row(0).map(|c| *c).collect());
         borders.push(picture.pixels.iter_row(picture_size - 1).map(|c| *c).collect());

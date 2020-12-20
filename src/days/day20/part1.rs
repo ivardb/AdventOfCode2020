@@ -9,29 +9,26 @@ pub fn picture_str(input : &str) -> Result<i64, ()> {
     picture(parse_input(input))
 }
 
-pub fn picture(pictures : Vec<Picture>) -> Result<i64, ()> {
-    let picture_size = pictures[0].pixels.cols();
+pub fn picture(pictures : HashMap<i64, Picture>) -> Result<i64, ()> {
+    let picture_size = pictures.values().next().unwrap().pixels.cols();
     let border_map = compute_borders(&pictures, picture_size);
 
     let mut edges : HashMap<i64, Vec<Vec<char>>> = HashMap::new();
-    for picture in &pictures {
+    for picture in pictures.values() {
         for border in border_map.get(&picture.id).unwrap() {
             let mut reverse = border.clone();
             reverse.reverse();
-            let edge = !pictures.iter().filter(|p| p.id != picture.id)
+
+            //Border is an edge if it has no matches
+            let edge = !pictures.values().filter(|p| p.id != picture.id)
                 .map(|p| border_map.get(&p.id).unwrap())
                 .any(|borders| borders.contains(&reverse) | borders.contains(border));
             if edge {
-                edges.entry(picture.id)
-                    .and_modify(|v| v.push(border.clone()))
-                    .or_insert({
-                        let mut v = Vec::new();
-                        v.push(border.clone());
-                        v
-                    });
+                edges.entry(picture.id).or_insert(Vec::new()).push(border.clone());
             }
         }
     }
+    //Corners are all images that have two edges
     let corners : Vec<_> = edges.iter().filter(|(_k,v)| v.len() == 2 ).map(|(k,_v)| *k).collect();
     Ok(corners.iter().product())
 }
