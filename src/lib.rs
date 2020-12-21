@@ -157,6 +157,12 @@ pub fn benchmark(day : usize, iter : usize) {
             t2 = benchmark_function(input, &day20::part2::picture_str, iter);
             tp = benchmark_function(input, &day20::parse_input, iter);
         }
+        21 => {
+            let input = day21::default_input();
+            t1 = benchmark_function(input, &day21::part1::food_str, iter);
+            t2 = benchmark_function(input, &day21::part2::food_str, iter);
+            tp = benchmark_function(input, &day21::parse_input, iter);
+        }
         _ => {
             println!("Day not valid");
             return
@@ -241,6 +247,9 @@ pub fn criterion_bench_part1(day : usize, input : &str) {
         20 => {
             day20::part1::picture_str(input).unwrap();
         }
+        21 => {
+            day21::part1::food_str(input).unwrap();
+        }
         _ => {
             println!("Day not valid");
             return
@@ -309,6 +318,9 @@ pub fn criterion_bench_part2(day : usize, input : &str) {
         }
         20 => {
             day20::part2::picture_str(input).unwrap();
+        }
+        21 => {
+            day21::part2::food_str(input).unwrap();
         }
         _ => {
             println!("Day not valid");
