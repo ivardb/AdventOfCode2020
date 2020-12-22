@@ -42,10 +42,9 @@ pub fn food(input : Vec<FoodLine>) -> Result<String, ()> {
             .collect();
         mappings.insert(match_rule.unwrap(), match_value.unwrap());
     }
-    let values = mappings.iter()
+    Ok(mappings.iter()
         .sorted_by_key(|(k, _v)| k.clone())
-        .map(|(_k,v)| v).collect_vec();
-    Ok(String::from(&values.iter().fold(String::new(), |s, v| format!("{},{}", s, v))[1..]))
+        .map(|(_k,v)| v).join(","))
 }
 
 #[cfg(test)]
