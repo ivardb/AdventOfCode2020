@@ -172,6 +172,12 @@ pub fn benchmark(day : usize, iter : usize) {
             t2 = benchmark_function(input, &day22::part2::combat_str, iter);
             tp = benchmark_function(input, &day22::parse_input, iter);
         }
+        23 => {
+            let input = day23::default_input();
+            t1 = benchmark_function(input, &day23::part1::circle_str, iter);
+            t2 = benchmark_function(input, &day23::part2::circle_str, iter);
+            tp = benchmark_function(input, &day23::parse_input, iter);
+        }
         _ => {
             println!("Day not valid");
             return
@@ -262,6 +268,9 @@ pub fn criterion_bench_part1(day : usize, input : &str) {
         22 => {
             day22::part1::combat_str(input).unwrap();
         }
+        23 => {
+            day23::part1::circle_str(input).unwrap();
+        }
         _ => {
             println!("Day not valid");
             return
@@ -336,6 +345,9 @@ pub fn criterion_bench_part2(day : usize, input : &str) {
         }
         22 => {
             day22::part2::combat_str(input).unwrap();
+        }
+        23 => {
+            day23::part2::circle_str(input).unwrap();
         }
         _ => {
             println!("Day not valid");
