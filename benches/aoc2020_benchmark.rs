@@ -132,10 +132,16 @@ pub fn day22_benchmark(c : &mut Criterion) {
     c.bench_function("Day 22, Part 2", |b| b.iter(|| criterion_bench_part2(22, &input)));
 }
 
-pub fn day23_benchmark(c : &mut Criterion) {
+pub fn day23_part1_benchmark(c : &mut Criterion) {
     let input = include_str!("../src/days/day23/input");
     c.bench_function("Day 23, Part 1", |b| b.iter(|| criterion_bench_part1(23, &input)));
-    c.bench_function("Day 23, Part 2", |b| b.iter(|| criterion_bench_part2(23, &input)));
+}
+
+pub fn day23_part2_benchmark(c : &mut Criterion) {
+    let input = include_str!("../src/days/day23/input");
+    let mut group = c.benchmark_group("Slow");
+    group.sample_size(10);
+    group.bench_function("Day 23, Part 2", |b| b.iter(|| criterion_bench_part2(23, &input)));
 }
 
 pub fn day24_benchmark(c : &mut Criterion) {
@@ -145,5 +151,5 @@ pub fn day24_benchmark(c : &mut Criterion) {
 }
 
 
-criterion_group!(benches, day23_benchmark);
+criterion_group!(benches, day23_part1_benchmark, day23_part2_benchmark);
 criterion_main!(benches);

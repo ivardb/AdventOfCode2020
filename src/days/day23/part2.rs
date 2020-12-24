@@ -6,22 +6,20 @@ pub fn run() {
 }
 
 pub fn circle_str(input : &str) -> Result<i64, ()> {
-    let mut vec = parse_input(input);
-    let mut lengthening: Vec<_> = (input.len()+1..1000001).map(|n| n as i64).collect();
-    vec.append(&mut lengthening);
-    circle(vec)
+    circle(parse_input(input))
 }
 
 pub fn circle(circle : Vec<i64>) -> Result<i64, ()> {
-    let nodes: Vec<Node<i64>> = circle.iter().map(|n| Node::new(*n)).collect();
+    let mut nodes: Vec<Node<i64>> = circle.iter().map(|n| Node::new(*n)).collect();
+    nodes.append(&mut (circle.len()+1..1000001).map(|n| Node::new(n as i64)).collect());
     let mut nxt = HashMap::new();
-    for i in 0..circle.len() -1 {
+    for i in 0..nodes.len() -1 {
         nxt.insert(&nodes[i], &nodes[i+1]);
     }
-    nxt.insert(&nodes[circle.len() - 1], &nodes[0]);
+    nxt.insert(&nodes[nodes.len() - 1], &nodes[0]);
     let lookup : HashMap<_,_> = nodes.iter().map(|n| (n.val, n)).collect();
 
-    let max = *circle.iter().max().unwrap();
+    let max = nodes[nodes.len() -1].val;
     let min = *circle.iter().min().unwrap();
     let mut curr = &nodes[0];
     for _i in 0..10000000 {
