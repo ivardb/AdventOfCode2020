@@ -76,4 +76,13 @@ eneswnwswnwsenenwnwnwwseeswneewsenese
 neswnwewnwnwseenwseesewsenwsweewe
 wseweeenwnesenwwwswnew").unwrap(), 2208)
     }
+
+    #[cfg(test)]
+    pub mod tests {
+        use super::*;
+
+        pub fn part2_answer() {
+            assert_eq!(hex_str(default_input()).unwrap(), 3869)
+        }
+    }
 }

@@ -7,7 +7,7 @@ pub fn run() {
 }
 
 pub fn default_input() -> &'static str {
-    "364289715"
+    include_str!("input")
 }
 
 pub fn parse_input(input : &str) -> Vec<i64> {

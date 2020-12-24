@@ -24,3 +24,12 @@ pub fn hex(input : Vec<Vec<Direction>>) -> Result<usize, ()> {
     }
     Ok(black.len())
 }
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+
+    pub fn part1_answer() {
+        assert_eq!(hex_str(default_input()).unwrap(), 351)
+    }
+}
