@@ -155,5 +155,5 @@ pub fn day25_benchmark(c : &mut Criterion) {
     c.bench_function("Day 25, Part 1", |b| b.iter(|| criterion_bench_part1(25, &input)));
 }
 
-criterion_group!(benches, day25_benchmark);
+criterion_group!(benches, day24_benchmark);
 criterion_main!(benches);

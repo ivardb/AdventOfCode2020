@@ -27,21 +27,16 @@ pub fn hex(input : Vec<Vec<Direction>>) -> Result<usize, ()> {
     for _i in 0..100 {
         let mut neighbours: HashMap<Point, u8> = HashMap::new();
         for p in &black {
-            neighbours.entry(*p).or_insert(0);
             for dir in Direction::all() {
                 neighbours.entry(p.add(dir.to_point())).and_modify(|c| *c += 1).or_insert(1);
             }
         }
         let mut new_black = HashSet::new();
         for (p, c) in neighbours {
-            if black.contains(&p) {
-                if !((c == 0) | (c > 2))  {
-                    new_black.insert(p);
-                }
-            } else {
-                if c == 2 {
-                    new_black.insert(p);
-                }
+            if (c == 1) && black.contains(&p) {
+                new_black.insert(p);
+            } else if c == 2 {
+                new_black.insert(p);
             }
         }
         black = new_black;
@@ -77,12 +72,8 @@ neswnwewnwnwseenwseesewsenwsweewe
 wseweeenwnesenwwwswnew").unwrap(), 2208)
     }
 
-    #[cfg(test)]
-    pub mod tests {
-        use super::*;
-
-        pub fn part2_answer() {
+    #[test]
+    pub fn part2_answer() {
             assert_eq!(hex_str(default_input()).unwrap(), 3869)
         }
-    }
 }
